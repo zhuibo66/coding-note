@@ -1,6 +1,10 @@
+//express解析各种格式的数据的好文分享：https://juejin.cn/post/6844903856225140743
+
 const express = require("express");
 const path = require("path");
 const open = require("open");//该插件主要是用来打开如URL、文件、可执行文件之类的东西，还是跨平台。
+const multer = require("multer");//解析表单格式=multipart/form-data的数据
+const upload = multer();
 const app = express();
 const port = 8800;
 
@@ -16,6 +20,34 @@ app.use((req, res, next) => {
   res.append("Access-Control-Allow-Methods", "*");
   res.append("Access-Control-Allow-Origin", "*");
   next();
+});
+
+//处理文件上传，并做了个中转将文件流转发到另外的一台存储服务器的案例
+app.post("/uploader", upload.array("files"), async (req, res) => {
+  //let formData = req.body; //除文件流外的表单数据
+  //这里我默认取了数组的第一个数据，大家根据实际的情况进行组合数据
+  const { originalname, mimetype, buffer } = req.files[0];
+  request.post(
+    {
+      url: "xxx",
+      headers: {
+        Authorization:
+          "Bearer xxx",
+      },
+      formData: {
+        file: {
+          value: buffer,
+          options: {
+            filename: originalname,
+            contentType: mimetype,
+          },
+        },
+      },
+    },
+    (error, res, body) => {
+      // console.log(res)
+    }
+  );
 });
 
 app.delete("/delete", async (req, res) => {
